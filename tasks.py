@@ -77,4 +77,3 @@ class Log:
         for i in self._log_list:
             result += "{0}\t${1}\n".format(i["worker"], i["payment"])
         return result[:-1]
-
