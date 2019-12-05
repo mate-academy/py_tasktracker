@@ -47,7 +47,6 @@ class List:
     def insert(self, worker_name, task_name, task_payment):
         """
         Insert item in list
-        :param value: item value
         :return: None
         """
         if self.head is None:
