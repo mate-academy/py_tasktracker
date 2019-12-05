@@ -197,7 +197,5 @@ class Log:
         Generate string report from confirm() method result.
         :return: str
         """
-        final_report = ""
-        for worker_name, task_payment in self.confirm().items():
-            final_report += f"{worker_name}\t${task_payment}\n"
-        return final_report.rstrip("\n")
+        return '\n'.join(f"{worker_name}\t${task_payment}"
+                         for worker_name, task_payment in self.confirm().items())
