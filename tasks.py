@@ -1,7 +1,7 @@
 """implement a simple task tracker"""
 
-import linked_list
 from typing import List
+import linked_list
 
 
 class Worker:
