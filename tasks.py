@@ -64,6 +64,3 @@ class HourlyPaymentTask(Task):
 
     def get_cost(self):
         return self.cost * self.hours
-l1 = log()
-w1 = Worker("dima")
-t1 = Task(1)
