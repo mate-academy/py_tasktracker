@@ -9,8 +9,9 @@ class Worker:
     def __repr__(self):
         return self._name
 
-    def __str__(self):
-        return self._name
+    def confirm(self, task, log):
+        """make record in log"""
+        log.confirm(self, task)
 
 
 class Task:
@@ -38,17 +39,19 @@ class Task:
         """
         return self._worker
 
+
 class HourlyTask(Task):
     """hourly payment task"""
     def __init__(self, task_name: str, payment_per_hour: int, hours_worked: int, worker: Worker):
         super().__init__(task_name, payment_per_hour, worker)
+        self._payment_per_hour = payment_per_hour
         self._hours_worked = hours_worked
 
     def get_payment(self):
         """
         return payment for task
         """
-        return self._payment * self._hours_worked
+        return self._payment_per_hour * self._hours_worked
 
 
 class Log:
@@ -56,7 +59,7 @@ class Log:
     Class for working with logs
     """
     def __init__(self):
-        self._log_list = []
+        self._log = []
 
     def confirm(self, worker: Worker, task: Task):
         """
@@ -64,9 +67,9 @@ class Log:
         """
         if worker is not task.get_worker():
             return f"task: {task} is not {worker} work"
-        self._log_list.append({"worker": worker,
-                               "task": task,
-                               "payment": task.get_payment()})
+        self._log.append({"worker": worker,
+                          "task": task,
+                          "payment": task.get_payment()})
         return True
 
     def report(self):
@@ -74,6 +77,6 @@ class Log:
         return all log list
         """
         result = ""
-        for i in self._log_list:
+        for i in self._log:
             result += "{0}\t${1}\n".format(i["worker"], i["payment"])
         return result[:-1]
