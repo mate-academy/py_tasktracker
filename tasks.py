@@ -48,9 +48,9 @@ class Task:
                f"completed:{self.completed})>"
 
 
-class HourlyPaymentTask(Task):
+class HourlyTask(Task):
     """
-    Child class that inherit from Task and represents hourly payment
+    Child class that inherit from Task and represents hourly
     task parameters which connected with each worker.
     """
 
@@ -60,59 +60,120 @@ class HourlyPaymentTask(Task):
         self.total_task_hours = total_task_hours
 
     def __str__(self) -> str:
-        return f"HourlyPaymentTask(worker:{self.worker}, title:{self.title}, " \
+        return f"HourlyTask(worker:{self.worker}, title:{self.title}, " \
                f"estimated_time:{self.estimated_hours}," \
-               f"completed:{self.completed})"
+               f"completed:{self.completed})" \
+               f"total_task_hours:{self.total_task_hours}"
 
-    def get_payment_hourly_task(self):
+    def __repr__(self) -> str:
+        return f"HT<(worker:{self.worker}, title:{self.title}, " \
+               f"estimated_time:{self.estimated_hours}," \
+               f"completed:{self.completed})" \
+               f"total_task_hours:{self.total_task_hours}>"
+
+
+class FixedTask(Task):
+    """
+    Child class that inherit from Task and represents fixed
+    task parameters which connected with each worker.
+    """
+
+    def __init__(self, worker: Worker, total_task_payment,
+                 completed: bool, estimated_time: int = 0):
+        super().__init__(worker, estimated_time, completed)
+        self.total_task_payment = total_task_payment
+
+    def __str__(self) -> str:
+        return f"FixedTask(worker:{self.worker}, title:{self.title}, " \
+               f"estimated_time:{self.estimated_hours}," \
+               f"completed:{self.completed})" \
+               f"total_task_payment:{self.total_task_payment}"
+
+    def __repr__(self) -> str:
+        return f"FT<(worker:{self.worker}, title:{self.title}, " \
+               f"estimated_time:{self.estimated_hours}," \
+               f"completed:{self.completed})" \
+               f"total_task_payment:{self.total_task_payment}>"
+
+
+class Payment:
+    """
+    Parent class payment which contain information about every worker.
+    """
+
+    def __init__(self, worker: Worker):
+        self.worker = worker
+
+    def __str__(self) -> str:
+        return f"Payment(worker:{self.worker}"
+
+    def payment_result(self):
+        """
+        Return daily worker salary.
+        :return: int
+        """
+        return self.worker.hourly_rate * self.worker.working_hours_per_day
+
+
+class HourlyPaymentPerTask(Payment):
+    """
+    Child class that inherit from Payment and represents hourly payment
+    parameters per task which connected with each worker and each worker task.
+    """
+
+    def __init__(self, worker: Worker, task: HourlyTask):
+        super().__init__(worker)
+        self.task = task
+
+    def __str__(self) -> str:
+        return f"HourlyPayment(worker:{self.worker}, task:{self.task}"
+
+    def payment_result(self):
         """
         Return total payment from each hourly payment task.
         :return: int
         """
         if self.worker.presence_at_work \
-                and self.completed \
-                and self.total_task_hours >= self.estimated_hours:
-            return self.total_task_hours * self.worker.hourly_rate
+                and self.task.completed \
+                and self.task.total_task_hours >= self.task.estimated_hours:
+            return self.task.total_task_hours * self.worker.hourly_rate
         return 0
 
 
-class FixedPaymentTask(Task):
+class FixedPaymentPerTask(Payment):
     """
-    Child class that inherit from Task and represents fixed payment
-    task parameters which connected with each worker.
+    Child class that inherit from Payment and represents fixed payment
+    parameters per task which connected with each worker and each worker task.
     """
 
-    def __init__(self, worker: Worker, total_payment,
-                 completed: bool, estimated_time: int = 0):
-        super().__init__(worker, estimated_time, completed)
-        self._total_payment = total_payment
+    def __init__(self, worker: Worker, task: FixedTask):
+        super().__init__(worker)
+        self.task = task
 
     def __str__(self) -> str:
-        return f"FixedPaymentTask(worker:{self.worker}, title:{self.title}, " \
-               f"estimated_time:{self.estimated_hours}," \
-               f"completed:{self.completed})"
+        return f"FixedPayment(worker:{self.worker}, task:{self.task}"
 
-    def get_payment_fixed_task(self):
+    def payment_result(self):
         """
         Return total payment from each fixed payment task.
         :return: int
         """
-        if self.worker.presence_at_work and self.completed:
-            return self._total_payment
+        if self.worker.presence_at_work and self.task.completed:
+            return self.task.total_task_payment
         return 0
 
 
 class Log:
     """
-    Log class represents hourly payment task parameters
-    which connected with each task.
+    Log class represents information about task and worker
+    which connected with each payment.
     """
 
-    def __init__(self, *tasks: Task):
-        self.tasks = tasks
+    def __init__(self, *payments: Payment):
+        self.payments = payments
 
     def __repr__(self) -> str:
-        return f"<Log(name:{self.tasks})>"
+        return f"<Log(payments:{self.payments})>"
 
     def confirm(self) -> dict:
         """
@@ -120,13 +181,13 @@ class Log:
         :return: dict
         """
         task_payments = {}
-        for task in self.tasks:
-            if isinstance(task, HourlyPaymentTask) \
-                    and task.get_payment_hourly_task() > 0:
-                task_payments[task.worker.name] = task.get_payment_hourly_task()
-            elif isinstance(task, FixedPaymentTask) \
-                    and task.get_payment_fixed_task() > 0:
-                task_payments[task.worker.name] = task.get_payment_fixed_task()
+        for payment in self.payments:
+            if isinstance(payment, HourlyPaymentPerTask) \
+                    and payment.payment_result() > 0:
+                task_payments[payment.worker.name] = payment.payment_result()
+            elif isinstance(payment, FixedPaymentPerTask) \
+                    and payment.payment_result() > 0:
+                task_payments[payment.worker.name] = payment.payment_result()
             else:
                 return {}
         return task_payments
