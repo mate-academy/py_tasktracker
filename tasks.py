@@ -1,7 +1,8 @@
-"""There are two kinds of tasks: fixed payment task and hourly payment task.
+"""Two kinds of tasks: fixed payment task and hourly payment task.
  Any task can be assigned to a worker.
   The worker has a name and can confirm task completion to the log.
- The log should be able to produce reports with worker's names and payment for completed tasks."""
+ The log should be able to produce reports
+  with worker's names and payment for completed tasks."""
 
 
 class Worker:
@@ -33,17 +34,16 @@ class Worker:
 
 class Task:
     """task has id, name, sum pay and worker"""
-    def __init__(self, id_task, name, sum_pay):
+    def __init__(self, id_task, name):
         self.id_task = id_task
         self.name = name
         self.worker = None
-        self.sum_pay = sum_pay
 
     def __hash__(self):
-        return hash(self.worker) ^ hash(self.sum_pay)
+        return hash(self.worker) ^ hash(self.id_task)
 
     def __str__(self):
-        return f"{self.name}: {self.worker.get_name()}, {self.sum_pay} "
+        return f"{self.name}: {self.worker.get_name()}"
 
     def get_name(self):
         """return task name"""
@@ -57,7 +57,8 @@ class Task:
 class FTask(Task):
     """fix price task"""
     def __init__(self, id_task, name, sum_pay):
-        super().__init__(id_task, name, sum_pay)
+        super().__init__(id_task, name)
+        self.sum_pay = sum_pay
 
     def get_sum_pay(self):
         """return fix price sum"""
@@ -67,7 +68,8 @@ class FTask(Task):
 class HTask(Task):
     """hourly rate task"""
     def __init__(self, id_task, name, sum_pay, hours):
-        super().__init__(id_task, name, sum_pay)
+        super().__init__(id_task, name)
+        self.sum_pay = sum_pay
         self.hours = hours
 
     def get_sum_pay(self):
@@ -87,7 +89,8 @@ class Log:
 
     def report(self):
         """str representation"""
-        return "\n".join(f"{task.get_name()},{worker.get_name()}: {task.get_sum_pay()}" for task, worker in self.logs)
+        return "\n".join(f"{task.get_name()},{worker.get_name()}:"
+                         f" {task.get_sum_pay()}" for task, worker in self.logs)
 
 
 class Register:
