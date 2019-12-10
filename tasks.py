@@ -3,8 +3,9 @@
 
 class Worker:
     """Worker representation"""
-    def __init__(self, name):
+    def __init__(self, name, worker_type):
         self.name = name
+        self.worker_type = worker_type
 
     def get_worker_name(self):
         """Returns worker name"""
@@ -17,10 +18,9 @@ class Worker:
 
 class Task:
     """Task representation"""
-    def __init__(self, task, payment, task_type, rate, hours):
+    def __init__(self, task, payment, rate=0, hours=0):
         self.task = task
         self.payment = payment
-        self.task_type = task_type
         self.rate = rate
         self.hours = hours
 
@@ -30,8 +30,6 @@ class Task:
 
     def get_salary(self):
         """Returns salary depending on type of task"""
-        if self.task_type == 'Hourly':
-            return self.rate * self.hours
         return self.payment
 
 
@@ -42,7 +40,10 @@ class Log:
 
     def confirm(self, worker: Worker, task: Task):
         """Fill info about worker's salary"""
-        self.report_about_task[worker.name] = task.get_salary()
+        if worker.worker_type == 'Hourly':
+            self.report_about_task[worker.name] = task.rate * task.hours
+        else:
+            self.report_about_task[worker.name] = task.get_salary()
 
     def report(self):
         """Returns salary of every worker"""
